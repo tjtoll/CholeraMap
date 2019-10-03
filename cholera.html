@@ -31,6 +31,17 @@
         shape-rendering: crispEdges;
     }
 
+    .yaxis text {
+        font-family: sans-serif;
+        font-size: 8px;
+    }
+    .yaxis path,
+    .yaxis line {
+        fill: none;
+        stroke: black;
+        shape-rendering: crispEdges;
+    }
+
     .container {
         float: left;
     }
@@ -49,7 +60,6 @@
         top: -15px;
         right: 0px;
     }
-
 
     </style>
     <title>Trevor Toll's Project 1: H517 Visualization Design, Analysis,
@@ -75,6 +85,8 @@
 </div>
 <div class="container" id="area4">
 </div>
+<div class="container" id="area5">
+</div>
 
 
 
@@ -97,6 +109,11 @@
     d.style.left = 850+'px';
     d.style.top = 300+'px';
 
+    var d = document.getElementById('area5');
+    d.style.position = "absolute";
+    d.style.left = 25+'px';
+    d.style.top = 45+'px';
+
     var Important2 = 99999;
     //Map height/width
     var hMap = 500;
@@ -106,11 +123,20 @@
 
     var svgContainer = d3.select("#area1").append("svg")
         .attr("width", wMap)
-        .attr("height", hMap+margin.top);
+        .attr("height", hMap+margin.top)
+        .call(d3.behavior.zoom().on("zoom", function () {
+            svgContainer.attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")")
+        }))
+        .append('g');
+
+    var svgMapLegend = d3.select("#area5").append("svg")
+        .attr("width", wMap)
+        .attr("height", 50)
+        .append('g');
 
     //Bar chart height/width
     var hBar = 225 - margin.bottom;
-    var wBar = 750;
+    var wBar = 750 - 20;
     var svgBar = d3.select("#area2").append("svg")
         .attr("width", wBar + margin.left + margin.right)
         .attr("height", hBar + margin.top + margin.bottom)
@@ -139,7 +165,7 @@
     function drawMapLegend() {
         d3.csv("legend.csv", function(mapLegend){
 
-            svgContainer.selectAll("legends")
+            svgMapLegend.selectAll("legends")
                 .data(mapLegend)
                 .enter()
                 .append("circle")
@@ -156,7 +182,7 @@
                     ;
                 });
 
-            svgContainer.selectAll("legends")
+            svgMapLegend.selectAll("legends")
                 .data(mapLegend)
                 .enter()
                 .append("text")
@@ -171,7 +197,7 @@
                     return d.b
                 });
 
-            svgContainer.selectAll("legends")
+            svgMapLegend.selectAll("legends")
                 .data(mapLegend)
                 .enter()
                 .append("text")
@@ -422,7 +448,6 @@
                         });
 
 
-
                     var totalDeaths = d3.nest()
                         .key(function(d) { return 1;})
                         .rollup(function(d) {
@@ -430,6 +455,165 @@
                         }).entries(csv_data);
 
                 })
+
+
+
+                // Bar chart action on Scatter
+                d3.csv('deaths_age_sex.csv', function(deathsByAge)
+                {
+
+                    var deathsByAge1 = deathsByAge;
+                    deathsByAge1.forEach(function(d,i) {
+                        if (i < Important ) {
+                            d.x = +d.x;
+                            d.y = +d.y;
+                            d.age = +d.age;
+                            d.gender = +d.gender;
+                            d.deathCount = 1;}
+                        if (i >= Important ) {
+                            d.x = +d.x;
+                            d.y = +d.y;
+                            d.age = +d.age;
+                            d.gender = +d.gender;
+                            d.deathCount = 0;}
+                    });
+
+                    var deathsByAgeData = d3.nest()
+                        .key(function(d,i) { return d.age
+                        ;})
+                        .rollup(function(d,i) {
+                            return d3.sum(d, function(d) { return d.deathCount});}
+                          ).entries(deathsByAge1);
+
+
+
+                    var totalDeaths = d3.nest()
+                        .key(function(d) { return 1;})
+                        .rollup(function(d) {
+                            return d3.sum(d, function(d,i) {return d.deathCount})
+                                ;
+                        }).entries(deathsByAge1);
+
+                    var totalDeathCount = totalDeaths[0].values;
+                    console.log(totalDeathCount);
+
+                    deathsByAgeData.forEach(function(d,i) {
+                        if (d.key == 0) {
+                            d.Age = +d.key;
+                            d.Deaths = +d.values;
+                            d.Percent = d.Deaths/totalDeathCount;
+                            d.CensusPct = .28;
+                            d.AgeGroup = '0-10'
+                        }
+                        if (d.key == 1) {
+                            d.Age = +d.key;
+                            d.Deaths = +d.values;
+                            d.Percent = d.Deaths/totalDeathCount;
+                            d.CensusPct = .25;
+                            d.AgeGroup = '11-20'}
+                        if (d.key == 2) {
+                            d.Age = +d.key;
+                            d.Deaths = +d.values;
+                            d.Percent = d.Deaths/totalDeathCount;
+                            d.CensusPct = .30;
+                            d.AgeGroup = '21-40';}
+                        if (d.key == 3) {
+                            d.Age = +d.key;
+                            d.Deaths = +d.values;
+                            d.Percent = d.Deaths/totalDeathCount;
+                            d.CensusPct = .13;
+                            d.AgeGroup = '41-60';}
+                        if (d.key == 4) {
+                            d.Age = +d.key;
+                            d.Deaths = +d.values;
+                            d.Percent = d.Deaths/totalDeathCount;
+                            d.CensusPct = .04;
+                            d.AgeGroup = '61-80';}
+                        if (d.key == 5) {
+                            d.Age = +d.key;
+                            d.Deaths = +d.values;
+                            d.Percent = d.Deaths/totalDeathCount;
+                            d.CensusPct = .01;
+                            d.AgeGroup = '> 80';}
+                    });
+                    console.log(deathsByAgeData)
+
+                    var xScale = d3.scale.linear();
+                    var yScale = d3.scale.linear();
+
+                    var xScaleMax= d3.max(d3.values(deathsByAgeData), function(d) {return d.CensusPct;});
+                    var yScaleMax= d3.max(d3.values(deathsByAgeData), function(d) {return d.Percent;});
+
+
+                    xScale.domain([0, xScaleMax + .1]).range([0, ScatterWidth-margin.left]);
+                    yScale.domain([0, yScaleMax + .1]).range([ScatterHeight-margin.top, margin.bottom]);
+
+                    svgScatterPlot.selectAll("circle")
+                        .data(deathsByAgeData)
+                        //.enter()
+                        //.append("circle")
+                        .attr("cx", function(d) {
+                            return xScale(d.CensusPct)+margin.left+25
+                                ;
+                        })
+                        .attr("cy", function(d) {
+                            return yScale(d.Percent)-margin.bottom
+                                ;
+                        })
+                        .attr("r", 7)
+                        .attr("fill",  "gray");
+
+                    svgScatterPlot.selectAll("text")  // <-- Note "text", not "circle" or "rect"
+                        .data(deathsByAgeData)
+
+                        //.enter()
+                        //.append("text")     // <-- Same here!
+                        .attr("x", function(d) {
+                            return xScale(d.CensusPct)+margin.left+25+10
+                                ;
+                        })
+                        .attr("y", function(d) {
+                            return yScale(d.Percent)-margin.bottom+17
+                                ;
+                        })
+                        .attr("font-family", "sans-serif")
+                        .attr("font-size", "12px")
+                        .attr("fill", "blue")
+                        .text(function(d) {
+                            return d.AgeGroup;
+                        });
+
+                    var g = d3.select('svgScatterPlot').select('g');
+
+
+
+                    var xAxis = d3.svg.axis()
+                        .scale(xScale)
+                        .orient("bottom");
+
+                    var yAxis = d3.svg.axis()
+                        .scale(yScale)
+                        .orient("left")
+                        .ticks(10)
+                        ;
+
+
+                    svgScatterPlot.selectAll('g.yaxis')
+                        //.attr('class', 'axis')
+                        .attr("transform", "translate(" + (margin.left+25) +", -15  )")
+                        .call(yAxis)
+                        .append("text")
+                        .attr("class", "label")
+                        .attr("transform", "rotate(-90)")
+                        .attr("y", -30)
+                        .attr("x", -100)
+                        .style("text-anchor", "end")
+                        .style("font-size", "10px")
+                        //.text("% of Total Cholera Deaths");
+
+
+
+                });
 
             })
             .on("mouseout", function(d,i) {
@@ -521,6 +705,147 @@
                         }).entries(csv_data);
 
                 })
+
+
+                // Bar chart action on Scatter
+                d3.csv('deaths_age_sex.csv', function(deathsByAge)
+                {
+                    var Important = 9999;
+                    var deathsByAgeData = d3.nest()
+                        .key(function(d,i) { return d.age
+                            ;})
+                        .rollup(function(d) {
+                            return d3.sum(d, function(d,i) {if (i <= Important) { return 1}
+                            else { return null}
+                                ; });
+                        }).entries(deathsByAge);
+
+
+                    var totalDeaths = d3.nest()
+                        .key(function(d) { return 1;})
+                        .rollup(function(d) {
+                            return d3.sum(d, function(d,i) {if (i <= Important) { return 1}
+                            else { return null}
+                                ; });
+                        }).entries(deathsByAge);
+
+                    var totalDeathCount = totalDeaths[0].values;
+
+                    deathsByAgeData.forEach(function(d,i) {
+                        if (d.key == 0) {
+                            d.Age = +d.key;
+                            d.Deaths = +d.values;
+                            d.Percent = d.Deaths/totalDeathCount;
+                            d.CensusPct = .28;
+                            d.AgeGroup = '0-10'
+                        }
+                        if (d.key == 1) {
+                            d.Age = +d.key;
+                            d.Deaths = +d.values;
+                            d.Percent = d.Deaths/totalDeathCount;
+                            d.CensusPct = .25;
+                            d.AgeGroup = '11-20'}
+                        if (d.key == 2) {
+                            d.Age = +d.key;
+                            d.Deaths = +d.values;
+                            d.Percent = d.Deaths/totalDeathCount;
+                            d.CensusPct = .30;
+                            d.AgeGroup = '21-40';}
+                        if (d.key == 3) {
+                            d.Age = +d.key;
+                            d.Deaths = +d.values;
+                            d.Percent = d.Deaths/totalDeathCount;
+                            d.CensusPct = .13;
+                            d.AgeGroup = '41-60';}
+                        if (d.key == 4) {
+                            d.Age = +d.key;
+                            d.Deaths = +d.values;
+                            d.Percent = d.Deaths/totalDeathCount;
+                            d.CensusPct = .04;
+                            d.AgeGroup = '61-80';}
+                        if (d.key == 5) {
+                            d.Age = +d.key;
+                            d.Deaths = +d.values;
+                            d.Percent = d.Deaths/totalDeathCount;
+                            d.CensusPct = .01;
+                            d.AgeGroup = '> 80';}
+                    });
+
+
+                    var xScale = d3.scale.linear();
+                    var yScale = d3.scale.linear();
+
+                    var xScaleMax= d3.max(d3.values(deathsByAgeData), function(d) {return d.CensusPct;});
+                    var yScaleMax= d3.max(d3.values(deathsByAgeData), function(d) {return d.Percent;});
+
+
+                    xScale.domain([0, xScaleMax + .1]).range([0, ScatterWidth-margin.left]);
+                    yScale.domain([0, yScaleMax + .1]).range([ScatterHeight-margin.top, margin.bottom]);
+
+                    svgScatterPlot.selectAll("circle")
+                        .data(deathsByAgeData)
+                        //.enter()
+                        //.append("circle")
+                        .attr("cx", function(d) {
+                            return xScale(d.CensusPct)+margin.left+25
+                                ;
+                        })
+                        .attr("cy", function(d) {
+                            return yScale(d.Percent)-margin.bottom
+                                ;
+                        })
+                        .attr("r", 7)
+                        .attr("fill",  "gray");
+
+                    svgScatterPlot.selectAll("text")  // <-- Note "text", not "circle" or "rect"
+                        .data(deathsByAgeData)
+                        //.enter()
+                        //.append("text")     // <-- Same here!
+                        .attr("x", function(d) {
+                            return xScale(d.CensusPct)+margin.left+25+10
+                                ;
+                        })
+                        .attr("y", function(d) {
+                            return yScale(d.Percent)-margin.bottom+17
+                                ;
+                        })
+                        .attr("font-family", "sans-serif")
+                        .attr("font-size", "12px")
+                        .attr("fill", "blue")
+                        .text(function(d) {
+                            return d.AgeGroup;
+                        });
+
+                    var g = d3.select('svgScatterPlot').select('g');
+
+
+
+                    var xAxis = d3.svg.axis()
+                        .scale(xScale)
+                        .orient("bottom");
+
+                    var yAxis = d3.svg.axis()
+                        .scale(yScale)
+                        .orient("left")
+                        .ticks(10);
+
+
+                    svgScatterPlot.append('g')
+                        .attr('class', 'axis')
+                        .attr("transform", "translate(" + (margin.left+25) +", -15  )")
+                        .call(yAxis)
+                        //.append("text")
+                        .attr("class", "label")
+                        .attr("transform", "rotate(-90)")
+                        .attr("y", -30)
+                        .attr("x", -100)
+                        .style("text-anchor", "end")
+                        .style("font-size", "10px")
+                        .text("% of Total Cholera Deaths");
+
+
+
+                });
             });
 
         var xAxis = d3.svg.axis()
@@ -1094,7 +1419,7 @@
             .style("text-anchor", "start");
 
         svgScatterPlot.append('g')
-            .attr('class', 'axis')
+            .attr('class', 'yaxis')
             .attr("transform", "translate(" + (margin.left+25) +", -15  )")
             .call(yAxis)
             .append("text")
