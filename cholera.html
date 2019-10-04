@@ -94,6 +94,9 @@
 
 
 <script type="text/javascript">
+
+    var formatPercent = d3.format(".0%");
+
     var d = document.getElementById('area2');
     d.style.position = "absolute";
     d.style.left = 500+'px';
@@ -234,7 +237,8 @@
                 .attr("d", lineFunction(i))
                 .attr("stroke", "black")
                 .attr("stroke-width", 1.5)
-                .attr("fill", "none");
+                .attr("fill", "none")
+                .append('g');
         }
 
         var text = svgContainer.selectAll("text")
@@ -557,7 +561,7 @@
                                 ;
                         })
                         .attr("cy", function(d) {
-                            return yScale(d.Percent)-margin.bottom
+                            return yScale(d.Percent)-margin.bottom+17
                                 ;
                         })
                         .attr("r", 7)
@@ -589,12 +593,14 @@
 
                     var xAxis = d3.svg.axis()
                         .scale(xScale)
-                        .orient("bottom");
+                        .orient("bottom")
+                        .tickFormat(formatPercent);;
 
                     var yAxis = d3.svg.axis()
                         .scale(yScale)
                         .orient("left")
                         .ticks(10)
+                        .tickFormat(formatPercent);
                         ;
 
 
@@ -791,7 +797,7 @@
                                 ;
                         })
                         .attr("cy", function(d) {
-                            return yScale(d.Percent)-margin.bottom
+                            return yScale(d.Percent)-margin.bottom+17
                                 ;
                         })
                         .attr("r", 7)
@@ -822,12 +828,14 @@
 
                     var xAxis = d3.svg.axis()
                         .scale(xScale)
-                        .orient("bottom");
+                        .orient("bottom")
+                        .tickFormat(formatPercent);
 
                     var yAxis = d3.svg.axis()
                         .scale(yScale)
                         .orient("left")
-                        .ticks(10);
+                        .ticks(10)
+                        .tickFormat(formatPercent);
 
 
                     svgScatterPlot.append('g')
@@ -1048,7 +1056,7 @@
                                 ;
                         })
                         .attr("cy", function(d) {
-                            return yScale(d.Percent)-margin.bottom
+                            return yScale(d.Percent)-margin.bottom+17
                                 ;
                         })
                         .attr("r", 7)
@@ -1079,12 +1087,14 @@
 
                     var xAxis = d3.svg.axis()
                         .scale(xScale)
-                        .orient("bottom");
+                        .orient("bottom")
+                        .tickFormat(formatPercent);
 
                     var yAxis = d3.svg.axis()
                         .scale(yScale)
                         .orient("left")
-                        .ticks(10);
+                        .ticks(10)
+                        .tickFormat(formatPercent);
 
 
                     svgScatterPlot.append('g')
@@ -1214,7 +1224,7 @@
                                 ;
                         })
                         .attr("cy", function(d) {
-                            return yScale(d.Percent)-margin.bottom
+                            return yScale(d.Percent)-margin.bottom+17
                                 ;
                         })
                         .attr("r", 7)
@@ -1245,12 +1255,14 @@
 
                     var xAxis = d3.svg.axis()
                         .scale(xScale)
-                        .orient("bottom");
+                        .orient("bottom")
+                        .tickFormat(formatPercent);
 
                     var yAxis = d3.svg.axis()
                         .scale(yScale)
                         .orient("left")
-                        .ticks(10);
+                        .ticks(10)
+                        .tickFormat(formatPercent);
 
 
                     svgScatterPlot.append('g')
@@ -1369,7 +1381,7 @@
                     ;
             })
             .attr("cy", function(d,i) {
-                return yScale(d.Percent)-margin.bottom
+                return yScale(d.Percent)-margin.bottom+17
                     ;
             })
             .attr("r", 7)
@@ -1400,12 +1412,15 @@
 
         var xAxis = d3.svg.axis()
             .scale(xScale)
-            .orient("bottom");
+            .orient("bottom")
+            .tickFormat(formatPercent);
 
         var yAxis = d3.svg.axis()
             .scale(yScale)
             .orient("left")
-            .ticks(10);
+            .ticks(10)
+            .tickFormat(formatPercent);
+
 
 
         svgScatterPlot.append("g")
@@ -1448,6 +1463,16 @@
             .style("font-size", "16px")
             .text("Deaths vs Census - Percent of Population by Age Group");
 
+    });
+
+
+    svgContainer.on({
+        "mouseover": function(d) {
+            d3.select(this).style("cursor", "pointer");
+        },
+        "mouseout": function(d) {
+            d3.select(this).style("cursor", "default");
+        }
     });
 
 
