@@ -712,8 +712,8 @@
                                 ;
                         })
                         .attr("font-family", "sans-serif")
-                        .attr("font-size", "12px")
-                        .attr("fill", "blue")
+                        .attr("font-size", "10px")
+                        .attr("fill", "black")
                         .text(function(d) {
                             return d.AgeGroup;
                         });
@@ -966,7 +966,7 @@
                         })
                         .attr("font-family", "sans-serif")
                         .attr("font-size", "12px")
-                        .attr("fill", "blue")
+                        .attr("fill", "black")
                         .text(function(d) {
                             return d.AgeGroup;
                         });
@@ -1243,8 +1243,8 @@
                                 ;
                         })
                         .attr("font-family", "sans-serif")
-                        .attr("font-size", "12px")
-                        .attr("fill", "blue")
+                        .attr("font-size", "10px")
+                        .attr("fill", "black")
                         .text(function(d) {
                             return d.AgeGroup;
                         });
@@ -1429,8 +1429,8 @@
                                 ;
                         })
                         .attr("font-family", "sans-serif")
-                        .attr("font-size", "12px")
-                        .attr("fill", "blue")
+                        .attr("font-size", "10px")
+                        .attr("fill", "black")
                         .text(function(d) {
                             return d.AgeGroup;
                         });
@@ -1570,14 +1570,124 @@
                 if (d.key == 3 ) { return "#fee0b6" }
                 if (d.key == 4 ) { return "#f1a340" }
                 if (d.key == 5 ) { return "#b35806" } }
-                );
+                )
+            .on("mouseover", function(d,i) {
+                d3.select(this)
+                    .attr("r", "12");
+                var AgeGroup = d.key;
+                d3.csv("deaths_age_sex.csv", function(error, csv_data) {
+
+                    csv_data.forEach(function(d,i) {
+                        if (d.age == AgeGroup) {
+                            d.x = +d.x;
+                            d.y = +d.y;
+                            d.age = +d.age;
+                            d.gender = +d.gender;
+                            d.deathCount = 1;}
+                    });
+
+
+                    var color = d3.scale.ordinal()
+                        .range(["#c57a1a","#415ec5"]);
+                    var arc = d3.svg.arc()
+                        .outerRadius(radius - (10/donutScale))
+                        .innerRadius(radius - (70/donutScale));
+                    var pie = d3.layout.pie()
+                        .sort(null)
+                        .value(function(d) { return d.values; });
+
+
+                    var dataDonut = d3.nest()
+                        .key(function(d) { return d.gender;})
+                        .rollup(function(d) {
+                            return d3.sum(d, function(d) {return d.deathCount; });
+                        }).entries(csv_data);
+
+                    svgDonut.selectAll("g")
+                        .data(pie(dataDonut))
+                        //.enter().append("g")
+                        .attr("class", "arc");
+
+                    svgDonut.selectAll("g")
+                        .select("path")
+                        .attr("d", arc)
+                        .style("fill", function(d) { return color(d.data.key); });
+                    svgDonut.selectAll("g")
+                        .select("text")
+                        .attr("class", "arc")
+                        .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
+                        .attr("dy", ".35em")
+                        .attr("dx", "-.6em")
+                        .text(function(d) {if (d.data.key == "0") { return d.data.values + ' females' }
+                        else { return  d.data.values + ' males' }
+                            ;
+                        });
+
+
+                })
+            })
+            .on("mouseout", function(d,i) {
+                d3.select(this)
+                    .attr("r", "7");
+                var AgeGroup = d.key;
+                d3.csv("deaths_age_sex.csv", function(error, csv_data) {
+
+                    csv_data.forEach(function(d,i) {
+                        if (1 == 1) {
+                            d.x = +d.x;
+                            d.y = +d.y;
+                            d.age = +d.age;
+                            d.gender = +d.gender;
+                            d.deathCount = 1;}
+                    });
+
+
+                    var color = d3.scale.ordinal()
+                        .range(["#c57a1a","#415ec5"]);
+                    var arc = d3.svg.arc()
+                        .outerRadius(radius - (10/donutScale))
+                        .innerRadius(radius - (70/donutScale));
+                    var pie = d3.layout.pie()
+                        .sort(null)
+                        .value(function(d) { return d.values; });
+
+
+                    var dataDonut = d3.nest()
+                        .key(function(d) { return d.gender;})
+                        .rollup(function(d) {
+                            return d3.sum(d, function(d) {return d.deathCount; });
+                        }).entries(csv_data);
+
+                    svgDonut.selectAll("g")
+                        .data(pie(dataDonut))
+                        //.enter().append("g")
+                        .attr("class", "arc");
+
+                    svgDonut.selectAll("g")
+                        .select("path")
+                        .attr("d", arc)
+                        .style("fill", function(d) { return color(d.data.key); });
+                    svgDonut.selectAll("g")
+                        .select("text")
+                        .attr("class", "arc")
+                        .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
+                        .attr("dy", ".35em")
+                        .attr("dx", "-.6em")
+                        .text(function(d) {if (d.data.key == "0") { return d.data.values + ' females' }
+                        else { return  d.data.values + ' males' }
+                            ;
+                        });
+
+
+                })
+            });
 
         svgScatterPlot.selectAll("text")  // <-- Note "text", not "circle" or "rect"
             .data(deathsByAgeData)
             .enter()
             .append("text")     // <-- Same here!
             .attr("x", function(d) {
-                return xScale(d.CensusPct)+margin.left+25
+                return xScale(d.CensusPct)+margin.left+25+10
                     ;
             })
             .attr("y", function(d) {
@@ -1585,7 +1695,7 @@
                     ;
             })
             .attr("font-family", "sans-serif")
-            .attr("font-size", "11px")
+            .attr("font-size", "10px")
             .attr("fill", "black")
             .text(function(d) {
                 return d.AgeGroup;
@@ -1650,7 +1760,8 @@
             .style("font-family", "sans-serif")
             .text("Deaths vs Census - Percent of Population by Age Group");
 
-    });
+        })
+
 
 
     svgContainer.on({
