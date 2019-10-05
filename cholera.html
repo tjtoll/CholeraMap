@@ -70,6 +70,14 @@
         right: 0px;
     }
 
+    #about {
+        position: absolute;
+        top: -15px;
+        right: 0px;
+        font-family: sans-serif;
+        font-size: 12px;
+    }
+
     #radiobutton {
         font-family: sans-serif;
         font-size: 12px;
@@ -83,7 +91,6 @@
 
 
     <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-
 
 </head>
 
@@ -117,13 +124,17 @@
 <div class="container" id="area5">
 </div>
 
+<div id="about">
+    <a href="about.html">About</a>
+</div>
+
+
 
 
 
 
 
 <script type="text/javascript">
-
 
     d3.select('input[name="mode"]:checked').property("id")
     var formatPercent = d3.format(".0%");
@@ -157,6 +168,11 @@
     d.style.position = "absolute";
     d.style.left = 25+'px';
     d.style.top = 45+'px';
+
+    var d = document.getElementById('about');
+    d.style.position = "absolute";
+    d.style.left = 1290+'px';
+    d.style.top = 15+'px';
 
     var Important2 = 99999;
     //Map height/width

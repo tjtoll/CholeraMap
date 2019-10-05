@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style> /* set the CSS */
+
+    div.tooltip {
+        position: absolute;
+        text-align: center;
+        width: 60px;
+        height: 28px;
+        padding: 2px;
+        font: 12px sans-serif;
+        background: lightgray;
+        border: 0px;
+        border-radius: 2px;
+        pointer-events: none;
+    }
+    .axis text {
+        font-family: sans-serif;
+        font-size: 8px;
+    }
+    .arc text {
+        font-family: sans-serif;
+        font-size: 12px;
+    }
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: black;
+        shape-rendering: crispEdges;
+    }
+
+    .yaxis text {
+        font-family: sans-serif;
+        font-size: 8px;
+    }
+
+    .yaxis path,
+    .yaxis line {
+        fill: none;
+        stroke: black;
+        shape-rendering: crispEdges;
+    }
+
+    .container {
+        float: left;
+    }
+
+    p {
+        text-align:center;
+        font-family: sans-serif;
+        font-size: 18px;
+        border-bottom: 3px double;
+    }
+
+
+    #about {
+        position: absolute;
+        top: -15px;
+        right: 0px;
+        font-family: sans-serif;
+        font-size: 12px;
+    }
+    #content {
+        position: relative;
+    }
+    #content img {
+        position: absolute;
+        top: -15px;
+        right: 0px;
+    }
+
+    #radiobutton {
+        font-family: sans-serif;
+        font-size: 12px;
+        z-index: 400;
+    }
+
+    </style>
+    <title>Trevor Toll's Project 1: H517 Visualization Design, Analysis,
+        & Evaluation</title>
+
+
+
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
+</head>
+
+<body>
+
+
+
+<div id="content">
+    <img src="iu_logo.png" class="ribbon" width="25"/>
+    <div><p> Trevor Toll's Project 1 for H517 Visualization Design, Analysis,
+        & Evaluation</p></div>
+</div>
+
+
+<div id="about">
+    <a href="cholera.html">Map</a>
+</div>
+
+<script type="text/javascript">
+
+    var d = document.getElementById('about');
+    d.style.position = "absolute";
+    d.style.left = 1290+'px';
+    d.style.top = 15+'px';
+    </script>
+
+</body>
+</html>
