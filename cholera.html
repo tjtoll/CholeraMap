@@ -1625,6 +1625,50 @@
 
 
                 })
+
+
+                d3.json("streets.json", function(streetMap){
+                    var yScale= d3.max(d3.values(streetMap), function(d) {return d[0].y*mapScale,d[1].y*mapScale;});
+                    var xMargin = d3.min(d3.values(streetMap), function(d) {return d[0].x*mapScale,d[1].x*mapScale;});
+                    //Death Locations
+                    d3.csv("deaths_age_sex.csv", function(deathLocations){
+
+                        //console.log(deathLocations)
+                        //Create circles
+                        svgContainer.selectAll("circle")
+                            .data(deathLocations)
+                            .attr("cx", function(d,i) {
+                                if (d.age == AgeGroup) { return mapScale*(d.x)-xMargin}
+                                else { return null}
+                                ;
+                            })
+                            .attr("cy", function(d,i) {
+                                if (d.age == AgeGroup) { return yScale-mapScale*(d.y)+margin.top}
+                                else { return null}
+                                ;})
+                            .attr("r", 1.5)
+                            .attr("fill", function(d) { if (d3.select('input[name="mode"]:checked').property("id") == 'Age')
+                            {if (d.age == 0 ) { return "#542788" }
+                                if (d.age == 1 ) { return "#998ec3" }
+                                if (d.age == 2 ) { return "#d8daeb" }
+                                if (d.age == 3 ) { return "#fee0b6" }
+                                if (d.age == 4 ) { return "#f1a340" }
+                                if (d.age == 5 ) { return "#b35806" }
+                                else { return "#c57a1a" }}
+                            else
+                            {
+                                if (d.gender == 1 ) { return "#415ec5" }
+                                else { return "#c57a1a" }
+                                ;
+                            }
+                                ;
+                            });
+
+                    });
+                });
+
+
+
             })
             .on("mouseout", function(d,i) {
                 d3.select(this)
@@ -1680,6 +1724,50 @@
 
 
                 })
+
+
+                d3.json("streets.json", function(streetMap){
+                    var yScale= d3.max(d3.values(streetMap), function(d) {return d[0].y*mapScale,d[1].y*mapScale;});
+                    var xMargin = d3.min(d3.values(streetMap), function(d) {return d[0].x*mapScale,d[1].x*mapScale;});
+                    //Death Locations
+                    d3.csv("deaths_age_sex.csv", function(deathLocations){
+
+                        //console.log(deathLocations)
+                        //Create circles
+                        svgContainer.selectAll("circle")
+                            .data(deathLocations)
+                            .attr("cx", function(d,i) {
+                                if (1 == 1) { return mapScale*(d.x)-xMargin}
+                                else { return null}
+                                ;
+                            })
+                            .attr("cy", function(d,i) {
+                                if (1 == 1) { return yScale-mapScale*(d.y)+margin.top}
+                                else { return null}
+                                ;})
+                            .attr("r", 1.5)
+                            .attr("fill", function(d) { if (d3.select('input[name="mode"]:checked').property("id") == 'Age')
+                            {if (d.age == 0 ) { return "#542788" }
+                                if (d.age == 1 ) { return "#998ec3" }
+                                if (d.age == 2 ) { return "#d8daeb" }
+                                if (d.age == 3 ) { return "#fee0b6" }
+                                if (d.age == 4 ) { return "#f1a340" }
+                                if (d.age == 5 ) { return "#b35806" }
+                                else { return "#c57a1a" }}
+                            else
+                            {
+                                if (d.gender == 1 ) { return "#415ec5" }
+                                else { return "#c57a1a" }
+                                ;
+                            }
+                                ;
+                            });
+
+                    });
+                });
+
+
+
             });
 
         svgScatterPlot.selectAll("text")  // <-- Note "text", not "circle" or "rect"
