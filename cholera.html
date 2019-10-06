@@ -116,20 +116,20 @@
         Color Map by <br>
         <input type='radio' id="Gender" name="mode" checked>Gender</input><br>
         <input type='radio' id="Age" name="mode" >Age</input><br>
+        <input type='radio' id="Cluster" name="mode" >Clusters</input><br>
     </form>
 </div>
 
 <div id="clusters">
     <form id="clustering">
-        Clusters <br>
-        <input type='radio' id="0" name="mode" checked>None</input><br>
-        <input type='radio' id="1" name="mode" >1</input><br>
-        <input type='radio' id="2" name="mode" >2</input><br>
-        <input type='radio' id="3" name="mode" >3</input><br>
-        <input type='radio' id="4" name="mode" >4</input><br>
-        <input type='radio' id="5" name="mode" >5</input><br>
-        <input type='radio' id="6" name="mode" >6</input><br>
-        <input type='radio' id="7" name="mode" >7</input><br>
+        # of Clusters <br>
+        <input type='radio' id="1" name="clstr" >1</input><br>
+        <input type='radio' id="2" name="clstr" >2</input><br>
+        <input type='radio' id="3" name="clstr" >3</input><br>
+        <input type='radio' id="4" name="clstr" >4</input><br>
+        <input type='radio' id="5" name="clstr" >5</input><br>
+        <input type='radio' id="6" name="clstr" >6</input><br>
+        <input type='radio' id="7" name="clstr" >7</input><br>
     </form>
 </div>
 
@@ -173,7 +173,7 @@
     var d = document.getElementById('clusters');
     d.style.position = "absolute";
     d.style.left = 505+'px';
-    d.style.top = 380+'px';
+    d.style.top = 400+'px';
 
     var d = document.getElementById('area2');
     d.style.position = "absolute";
@@ -373,16 +373,18 @@
 
         d3.csv("deaths_age_sex_clusters.csv", function(deathLocationsClusters){
 
-            var numClusters = 1;
+            var numClusters = -1;
 
             var deathClusters = d3.nest()
                 .key(function(d,i) { if (d.clusterCount == numClusters) {return d.cluster}
-                else {return -1}
+                else {return -2}
                     ;})
                 .rollup(function(v) { return {
                     count: v.length,
                     x: d3.mean(v, function(d) { return d.x; }),
-                    y: d3.mean(v, function(d) { return d.y; })
+                    y: d3.mean(v, function(d) { return d.y; }),
+                    gender: d3.mean(v, function(d) { return d.gender; }),
+                    clusterCnt: d3.mean(v, function(d) { return d.clusterCount; })
                 }; })
                 .entries(deathLocationsClusters);
 
@@ -392,22 +394,43 @@
                 .enter()
                 .append("circle")
                 .attr("cx", function(d,i) {
-                    if (d.key > -1) { return mapScale*(d.values.x)-xMargin}
+                    if (d.values.clusterCnt == numClusters) { return mapScale*(d.values.x)-xMargin}
                     //else { return mapScale*(d.x)-xMargin }
                     ;
                 })
                 .attr("cy", function(d) {
-                    return yScale-mapScale*(d.values.y)+margin.top;
+                    if (d.values.clusterCnt == numClusters) {return yScale-mapScale*(d.values.y)+margin.top};
                 })
                 .attr("r", function(d,i) {
-                    if (d.key > -1) { return d.values.count/5}
+                    if (d.values.clusterCnt == -1) {return 1.5}
+                    if (d.values.clusterCnt == numClusters) { return d.values.count/5}
                     //else { return mapScale*(d.x)-xMargin }
                     ;
                 })
                 //.attr("fill", "#2025c5");
+
                 .attr("fill", function(d) {
-                    return "rgb(" + Math.round(d.values.count * 1.1) + ", " + Math.round(d.values.count * 1.1) + ", 0)";
-                });
+
+                    if (d3.select('input[name="mode"]:checked').property("id") == 'Cluster')
+                    {
+                        return "rgb(" + Math.round(d.values.count * 1.1) + ", " + Math.round(d.values.count * 1.1) + ", 0)";
+                    }
+                    if (d3.select('input[name="mode"]:checked').property("id") == 'Age')
+                    {if (d.age == 0 ) { return "#542788" }
+                        if (d.age == 1 ) { return "#998ec3" }
+                        if (d.age == 2 ) { return "#d8daeb" }
+                        if (d.age == 3 ) { return "#fee0b6" }
+                        if (d.age == 4 ) { return "#f1a340" }
+                        if (d.age == 5 ) { return "#b35806" }
+                        else { return "#c57a1a" }}
+                    else
+                    {
+                        if (d.values.gender == 1 ) { return "#415ec5" }
+                        else { return "#c57a1a" }
+                        ;
+                    }
+                        ;
+                    });
 
         });
         d3.csv("pumps.csv", function(waterPumps){
@@ -1697,8 +1720,11 @@
 
                         //console.log(deathLocations)
                         //Create circles
+                        svgContainer.selectAll("circle").remove()
                         svgContainer.selectAll("circle")
                             .data(deathLocations)
+                            .enter()
+                            .append("circle")
                             .attr("cx", function(d,i) {
                                 if (d.age == AgeGroup) { return mapScale*(d.x)-xMargin}
                                 else { return null}
