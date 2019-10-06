@@ -376,7 +376,7 @@
             var numClusters = -1;
 
             var deathClusters = d3.nest()
-                .key(function(d,i) { if (d.clusterCount == numClusters) {return d.cluster}
+                .key(function(d,i) { if (d.clusterCount == -1) {return d.cluster}
                 else {return -2}
                     ;})
                 .rollup(function(v) { return {
@@ -394,16 +394,16 @@
                 .enter()
                 .append("circle")
                 .attr("cx", function(d,i) {
-                    if (d.values.clusterCnt == numClusters) { return mapScale*(d.values.x)-xMargin}
+                    if (d.values.clusterCnt == -1) { return mapScale*(d.values.x)-xMargin}
                     //else { return mapScale*(d.x)-xMargin }
                     ;
                 })
                 .attr("cy", function(d) {
-                    if (d.values.clusterCnt == numClusters) {return yScale-mapScale*(d.values.y)+margin.top};
+                    if (d.values.clusterCnt == -1) {return yScale-mapScale*(d.values.y)+margin.top};
                 })
                 .attr("r", function(d,i) {
                     if (d.values.clusterCnt == -1) {return 1.5}
-                    if (d.values.clusterCnt == numClusters) { return d.values.count/5}
+                    if (d.values.clusterCnt == -1) { return d.values.count/5}
                     //else { return mapScale*(d.x)-xMargin }
                     ;
                 })
