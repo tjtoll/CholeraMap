@@ -738,7 +738,9 @@
             .attr("fill", function(d) {
                 return "rgb(" + Math.round(d.deaths * 1.5) + ", " + Math.round(d.deaths * 1.5) + ", 0)";
             })
-            .on("mouseover", function(d,i) {
+            .on("mouseover", function(d,i) { if
+                (d3.select('input[name="mode"]:checked').property("id") != "Cluster")
+            {
                 d3.select(this)
                     .attr("fill", "orange");
                 var Important = d.cumulativeDeaths;
@@ -1045,11 +1047,11 @@
 
 
 
-                });
-
-
+                });}
             })
-            .on("mouseout", function(d,i) {
+            .on("mouseout", function(d,i) {if
+                (d3.select('input[name="mode"]:checked').property("id") != "Cluster")
+                {
                 d3.select(this)
                     .transition()
                     .duration(250)
@@ -1300,7 +1302,7 @@
 
 
 
-                });
+                });}
             });
 
         var xAxis = d3.svg.axis()
@@ -1388,389 +1390,505 @@
                 ;
             })
             .on("mouseover", function(d,i) {
-                d3.select(this)
-                    .attr("fill", "orange");
-                var genderSelection = d.data.key;
+                if
+                (d3.select('input[name="mode"]:checked').property("id") != "Cluster") {
+                    d3.select(this)
+                        .attr("fill", "orange");
+                    var genderSelection = d.data.key;
 
-                d3.json("streets.json", function(streetMap){
-                    var yScale= d3.max(d3.values(streetMap), function(d) {return d[0].y*mapScale,d[1].y*mapScale;});
-                    var xMargin = d3.min(d3.values(streetMap), function(d) {return d[0].x*mapScale,d[1].x*mapScale;});
-                    //Death Locations
-                    d3.csv("deaths_age_sex.csv", function(deathLocations){
+                    d3.json("streets.json", function (streetMap) {
+                        var yScale = d3.max(d3.values(streetMap), function (d) {
+                            return d[0].y * mapScale, d[1].y * mapScale;
+                        });
+                        var xMargin = d3.min(d3.values(streetMap), function (d) {
+                            return d[0].x * mapScale, d[1].x * mapScale;
+                        });
+                        //Death Locations
+                        d3.csv("deaths_age_sex.csv", function (deathLocations) {
 
-                        //console.log(deathLocations)
-                        //svgContainer.selectAll("circle").remove()
-                        //Create circles
-                        svgContainer.selectAll("circle")
-                            .data(deathLocations)
-                            //.enter()
-                            //.append("circle")
-                            .attr("cx", function(d,i) {
-                                if (d.gender == genderSelection) { return mapScale*(d.x)-xMargin}
-                                else { return null}
+                            //console.log(deathLocations)
+                            //svgContainer.selectAll("circle").remove()
+                            //Create circles
+                            svgContainer.selectAll("circle")
+                                .data(deathLocations)
+                                //.enter()
+                                //.append("circle")
+                                .attr("cx", function (d, i) {
+                                    if (d.gender == genderSelection) {
+                                        return mapScale * (d.x) - xMargin
+                                    } else {
+                                        return null
+                                    }
+                                    ;
+                                })
+                                .attr("cy", function (d, i) {
+                                    if (d.gender == genderSelection) {
+                                        return yScale - mapScale * (d.y) + margin.top
+                                    } else {
+                                        return null
+                                    }
+                                    ;
+                                })
+                                .attr("r", 1.5)
+                                .attr("fill", function (d) {
+                                    if (d3.select('input[name="mode"]:checked').property("id") == 'Age') {
+                                        if (d.age == 0) {
+                                            return "#542788"
+                                        }
+                                        if (d.age == 1) {
+                                            return "#998ec3"
+                                        }
+                                        if (d.age == 2) {
+                                            return "#d8daeb"
+                                        }
+                                        if (d.age == 3) {
+                                            return "#fee0b6"
+                                        }
+                                        if (d.age == 4) {
+                                            return "#f1a340"
+                                        }
+                                        if (d.age == 5) {
+                                            return "#b35806"
+                                        } else {
+                                            return "#c57a1a"
+                                        }
+                                    } else {
+                                        if (d.gender == 1) {
+                                            return "#415ec5"
+                                        } else {
+                                            return "#c57a1a"
+                                        }
+                                        ;
+                                    }
+                                    ;
+                                });
+
+
+                        });
+                    });
+                    // Donut chart action on Scatter
+                    d3.csv('deaths_age_sex.csv', function (deathsByAge) {
+
+                        var deathsByAgeData = d3.nest()
+                            .key(function (d) {
+                                if (d.gender == genderSelection) {
+                                    return d.age
+                                } else {
+                                    return null
+                                }
                                 ;
                             })
-                            .attr("cy", function(d,i) {
-                                if (d.gender == genderSelection) { return yScale-mapScale*(d.y)+margin.top}
-                                else { return null}
-                                ;})
-                            .attr("r", 1.5)
-                            .attr("fill", function(d) { if (d3.select('input[name="mode"]:checked').property("id") == 'Age')
-                            {if (d.age == 0 ) { return "#542788" }
-                                if (d.age == 1 ) { return "#998ec3" }
-                                if (d.age == 2 ) { return "#d8daeb" }
-                                if (d.age == 3 ) { return "#fee0b6" }
-                                if (d.age == 4 ) { return "#f1a340" }
-                                if (d.age == 5 ) { return "#b35806" }
-                                else { return "#c57a1a" }}
-                            else
-                            {
-                                if (d.gender == 1 ) { return "#415ec5" }
-                                else { return "#c57a1a" }
-                                ;
+                            .rollup(function (d) {
+                                return d3.sum(d, function (d) {
+                                    if (d.gender == genderSelection) {
+                                        return 1
+                                    } else {
+                                        return null
+                                    }
+                                    ;
+                                });
+                            }).entries(deathsByAge);
+
+                        var totalDeaths = d3.nest()
+                            .key(function (d) {
+                                return 1;
+                            })
+                            .rollup(function (d) {
+                                return d3.sum(d, function (d) {
+                                    if (d.gender == genderSelection) {
+                                        return 1
+                                    } else {
+                                        return null
+                                    }
+                                    ;
+                                });
+                            }).entries(deathsByAge);
+
+                        var totalDeathCount = totalDeaths[0].values;
+
+                        deathsByAgeData.forEach(function (d, i) {
+                            if (d.key == 0) {
+                                d.Age = +d.key;
+                                d.Deaths = +d.values;
+                                d.Percent = d.Deaths / totalDeathCount;
+                                d.CensusPct = .28;
+                                d.AgeGroup = '0-10'
                             }
-                                ;
-                            });
-
-
-
-                    });
-                });
-                // Donut chart action on Scatter
-                d3.csv('deaths_age_sex.csv', function(deathsByAge)
-                {
-
-                    var deathsByAgeData = d3.nest()
-                        .key(function(d) { if (d.gender == genderSelection) { return d.age}
-                        else { return null}
-                            ;})
-                        .rollup(function(d) {
-                            return d3.sum(d, function(d) {if (d.gender == genderSelection) { return 1}
-                            else { return null}
-                                ; });
-                        }).entries(deathsByAge);
-
-                    var totalDeaths = d3.nest()
-                        .key(function(d) { return 1;})
-                        .rollup(function(d) {
-                            return d3.sum(d, function(d) {if (d.gender == genderSelection) { return 1}
-                            else { return null}
-                                ; });
-                        }).entries(deathsByAge);
-
-                    var totalDeathCount = totalDeaths[0].values;
-
-                    deathsByAgeData.forEach(function(d,i) {
-                        if (d.key == 0) {
-                            d.Age = +d.key;
-                            d.Deaths = +d.values;
-                            d.Percent = d.Deaths/totalDeathCount;
-                            d.CensusPct = .28;
-                            d.AgeGroup = '0-10'
-                        }
-                        if (d.key == 1) {
-                            d.Age = +d.key;
-                            d.Deaths = +d.values;
-                            d.Percent = d.Deaths/totalDeathCount;
-                            d.CensusPct = .25;
-                            d.AgeGroup = '11-20'}
-                        if (d.key == 2) {
-                            d.Age = +d.key;
-                            d.Deaths = +d.values;
-                            d.Percent = d.Deaths/totalDeathCount;
-                            d.CensusPct = .30;
-                            d.AgeGroup = '21-40';}
-                        if (d.key == 3) {
-                            d.Age = +d.key;
-                            d.Deaths = +d.values;
-                            d.Percent = d.Deaths/totalDeathCount;
-                            d.CensusPct = .13;
-                            d.AgeGroup = '41-60';}
-                        if (d.key == 4) {
-                            d.Age = +d.key;
-                            d.Deaths = +d.values;
-                            d.Percent = d.Deaths/totalDeathCount;
-                            d.CensusPct = .04;
-                            d.AgeGroup = '61-80';}
-                        if (d.key == 5) {
-                            d.Age = +d.key;
-                            d.Deaths = +d.values;
-                            d.Percent = d.Deaths/totalDeathCount;
-                            d.CensusPct = .01;
-                            d.AgeGroup = '> 80';}
-                    });
-
-
-                    var xScale = d3.scale.linear();
-                    var yScale = d3.scale.linear();
-
-                    var xScaleMax= d3.max(d3.values(deathsByAgeData), function(d) {return d.CensusPct;});
-                    var yScaleMax= d3.max(d3.values(deathsByAgeData), function(d) {return d.Percent;});
-
-
-                    xScale.domain([0, xScaleMax + .1]).range([0, ScatterWidth-margin.left]);
-                    yScale.domain([0, yScaleMax + .1]).range([ScatterHeight-margin.top, margin.bottom]);
-
-                    svgScatterPlot.selectAll("circle")
-                        .data(deathsByAgeData)
-                        //.enter()
-                        //.append("circle")
-                        .attr("cx", function(d,i) {
-                            return xScale(d.CensusPct)+margin.left+25
-                                ;
-                        })
-                        .attr("cy", function(d,i) {
-                            return yScale(d.Percent)-margin.bottom+17
-                                ;
-                        })
-                        .attr("r", 7)
-                        .attr("fill", function(d) {
-                            if (d.key == 0 ) { return "#542788" }
-                            if (d.key == 1 ) { return "#998ec3" }
-                            if (d.key == 2 ) { return "#d8daeb" }
-                            if (d.key == 3 ) { return "#fee0b6" }
-                            if (d.key == 4 ) { return "#f1a340" }
-                            if (d.key == 5 ) { return "#b35806" } }
-                        );
-
-                    svgScatterPlot.selectAll("text")  // <-- Note "text", not "circle" or "rect"
-                        .data(deathsByAgeData)
-                        //.enter()
-                        //.append("text")     // <-- Same here!
-                        .attr("x", function(d) {
-                            return xScale(d.CensusPct)+margin.left+25+10
-                                ;
-                        })
-                        .attr("y", function(d) {
-                            return yScale(d.Percent)-margin.bottom+17
-                                ;
-                        })
-                        .attr("font-family", "sans-serif")
-                        .attr("font-size", "10px")
-                        .attr("fill", "black")
-                        .text(function(d) {
-                            return d.AgeGroup;
+                            if (d.key == 1) {
+                                d.Age = +d.key;
+                                d.Deaths = +d.values;
+                                d.Percent = d.Deaths / totalDeathCount;
+                                d.CensusPct = .25;
+                                d.AgeGroup = '11-20'
+                            }
+                            if (d.key == 2) {
+                                d.Age = +d.key;
+                                d.Deaths = +d.values;
+                                d.Percent = d.Deaths / totalDeathCount;
+                                d.CensusPct = .30;
+                                d.AgeGroup = '21-40';
+                            }
+                            if (d.key == 3) {
+                                d.Age = +d.key;
+                                d.Deaths = +d.values;
+                                d.Percent = d.Deaths / totalDeathCount;
+                                d.CensusPct = .13;
+                                d.AgeGroup = '41-60';
+                            }
+                            if (d.key == 4) {
+                                d.Age = +d.key;
+                                d.Deaths = +d.values;
+                                d.Percent = d.Deaths / totalDeathCount;
+                                d.CensusPct = .04;
+                                d.AgeGroup = '61-80';
+                            }
+                            if (d.key == 5) {
+                                d.Age = +d.key;
+                                d.Deaths = +d.values;
+                                d.Percent = d.Deaths / totalDeathCount;
+                                d.CensusPct = .01;
+                                d.AgeGroup = '> 80';
+                            }
                         });
 
-                    var g = d3.select('svgScatterPlot').select('g');
+
+                        var xScale = d3.scale.linear();
+                        var yScale = d3.scale.linear();
+
+                        var xScaleMax = d3.max(d3.values(deathsByAgeData), function (d) {
+                            return d.CensusPct;
+                        });
+                        var yScaleMax = d3.max(d3.values(deathsByAgeData), function (d) {
+                            return d.Percent;
+                        });
 
 
+                        xScale.domain([0, xScaleMax + .1]).range([0, ScatterWidth - margin.left]);
+                        yScale.domain([0, yScaleMax + .1]).range([ScatterHeight - margin.top, margin.bottom]);
 
-                    var xAxis = d3.svg.axis()
-                        .scale(xScale)
-                        .orient("bottom")
-                        .tickFormat(formatPercent);
+                        svgScatterPlot.selectAll("circle")
+                            .data(deathsByAgeData)
+                            //.enter()
+                            //.append("circle")
+                            .attr("cx", function (d, i) {
+                                return xScale(d.CensusPct) + margin.left + 25
+                                    ;
+                            })
+                            .attr("cy", function (d, i) {
+                                return yScale(d.Percent) - margin.bottom + 17
+                                    ;
+                            })
+                            .attr("r", 7)
+                            .attr("fill", function (d) {
+                                    if (d.key == 0) {
+                                        return "#542788"
+                                    }
+                                    if (d.key == 1) {
+                                        return "#998ec3"
+                                    }
+                                    if (d.key == 2) {
+                                        return "#d8daeb"
+                                    }
+                                    if (d.key == 3) {
+                                        return "#fee0b6"
+                                    }
+                                    if (d.key == 4) {
+                                        return "#f1a340"
+                                    }
+                                    if (d.key == 5) {
+                                        return "#b35806"
+                                    }
+                                }
+                            );
 
-                    var yAxis = d3.svg.axis()
-                        .scale(yScale)
-                        .orient("left")
-                        .ticks(10)
-                        .tickFormat(formatPercent);
+                        svgScatterPlot.selectAll("text")  // <-- Note "text", not "circle" or "rect"
+                            .data(deathsByAgeData)
+                            //.enter()
+                            //.append("text")     // <-- Same here!
+                            .attr("x", function (d) {
+                                return xScale(d.CensusPct) + margin.left + 25 + 10
+                                    ;
+                            })
+                            .attr("y", function (d) {
+                                return yScale(d.Percent) - margin.bottom + 17
+                                    ;
+                            })
+                            .attr("font-family", "sans-serif")
+                            .attr("font-size", "10px")
+                            .attr("fill", "black")
+                            .text(function (d) {
+                                return d.AgeGroup;
+                            });
+
+                        var g = d3.select('svgScatterPlot').select('g');
 
 
-                    svgScatterPlot.append('g')
-                        .attr('class', 'axis')
-                        .attr("transform", "translate(" + (margin.left+25) +", -15  )")
-                        .call(yAxis)
-                        //.append("text")
-                        .attr("class", "label")
-                        .attr("transform", "rotate(-90)")
-                        .attr("y", -30)
-                        .attr("x", -100)
-                        .style("text-anchor", "end")
-                        .style("font-size", "10px")
-                        .text("% of Total Cholera Deaths");
+                        var xAxis = d3.svg.axis()
+                            .scale(xScale)
+                            .orient("bottom")
+                            .tickFormat(formatPercent);
+
+                        var yAxis = d3.svg.axis()
+                            .scale(yScale)
+                            .orient("left")
+                            .ticks(10)
+                            .tickFormat(formatPercent);
 
 
+                        svgScatterPlot.append('g')
+                            .attr('class', 'axis')
+                            .attr("transform", "translate(" + (margin.left + 25) + ", -15  )")
+                            .call(yAxis)
+                            //.append("text")
+                            .attr("class", "label")
+                            .attr("transform", "rotate(-90)")
+                            .attr("y", -30)
+                            .attr("x", -100)
+                            .style("text-anchor", "end")
+                            .style("font-size", "10px")
+                            .text("% of Total Cholera Deaths");
 
-                });
 
+                    });
+                }
 
             })
             .on("mouseout", function(d,i) {
-                d3.select(this)
-                    .attr("fill", "black");
-                var genderSelection = d.data.key;
+                if
+                (d3.select('input[name="mode"]:checked').property("id") != "Cluster") {
+                    d3.select(this)
+                        .attr("fill", "black");
+                    var genderSelection = d.data.key;
 
-                d3.json("streets.json", function(streetMap){
-                    var yScale= d3.max(d3.values(streetMap), function(d) {return d[0].y*mapScale,d[1].y*mapScale;});
-                    var xMargin = d3.min(d3.values(streetMap), function(d) {return d[0].x*mapScale,d[1].x*mapScale;});
-                    //Death Locations
-                    d3.csv("deaths_age_sex.csv", function(deathLocations){
+                    d3.json("streets.json", function (streetMap) {
+                        var yScale = d3.max(d3.values(streetMap), function (d) {
+                            return d[0].y * mapScale, d[1].y * mapScale;
+                        });
+                        var xMargin = d3.min(d3.values(streetMap), function (d) {
+                            return d[0].x * mapScale, d[1].x * mapScale;
+                        });
+                        //Death Locations
+                        d3.csv("deaths_age_sex.csv", function (deathLocations) {
 
-                        //console.log(deathLocations)
-                        //Create circles
-                        svgContainer.selectAll("circle")
-                            .data(deathLocations)
-                            .attr("cx", function(d,i) { return mapScale*(d.x)-xMargin
+                            //console.log(deathLocations)
+                            //Create circles
+                            svgContainer.selectAll("circle")
+                                .data(deathLocations)
+                                .attr("cx", function (d, i) {
+                                    return mapScale * (d.x) - xMargin
+                                })
+                                .attr("cy", function (d, i) {
+                                    return yScale - mapScale * (d.y) + margin.top
+                                })
+
+                                .attr("r", 1.5)
+                                .attr("fill", function (d) {
+                                    if (d3.select('input[name="mode"]:checked').property("id") == 'Age') {
+                                        if (d.age == 0) {
+                                            return "#542788"
+                                        }
+                                        if (d.age == 1) {
+                                            return "#998ec3"
+                                        }
+                                        if (d.age == 2) {
+                                            return "#d8daeb"
+                                        }
+                                        if (d.age == 3) {
+                                            return "#fee0b6"
+                                        }
+                                        if (d.age == 4) {
+                                            return "#f1a340"
+                                        }
+                                        if (d.age == 5) {
+                                            return "#b35806"
+                                        } else {
+                                            return "#c57a1a"
+                                        }
+                                    } else {
+                                        if (d.gender == 1) {
+                                            return "#415ec5"
+                                        } else {
+                                            return "#c57a1a"
+                                        }
+                                        ;
+                                    }
+                                    ;
+                                });
+
+                        });
+                    });
+
+                    // Donut chart action on Scatter
+                    d3.csv('deaths_age_sex.csv', function (deathsByAge) {
+
+                        var deathsByAgeData = d3.nest()
+                            .key(function (d) {
+                                return d.age
+                                    ;
                             })
-                            .attr("cy", function(d,i) { return yScale-mapScale*(d.y)+margin.top})
+                            .rollup(function (d) {
+                                return d3.sum(d, function (d) {
+                                    return 1;
+                                });
+                            }).entries(deathsByAge);
 
-                            .attr("r", 1.5)
-                            .attr("fill", function(d) { if (d3.select('input[name="mode"]:checked').property("id") == 'Age')
-                            {if (d.age == 0 ) { return "#542788" }
-                                if (d.age == 1 ) { return "#998ec3" }
-                                if (d.age == 2 ) { return "#d8daeb" }
-                                if (d.age == 3 ) { return "#fee0b6" }
-                                if (d.age == 4 ) { return "#f1a340" }
-                                if (d.age == 5 ) { return "#b35806" }
-                                else { return "#c57a1a" }}
-                            else
-                            {
-                                if (d.gender == 1 ) { return "#415ec5" }
-                                else { return "#c57a1a" }
-                                ;
+                        var totalDeaths = d3.nest()
+                            .key(function (d) {
+                                return 1;
+                            })
+                            .rollup(function (d) {
+                                return d3.sum(d, function (g) {
+                                    return 1;
+                                });
+                            }).entries(deathsByAge);
+
+                        var totalDeathCount = totalDeaths[0].values;
+
+                        deathsByAgeData.forEach(function (d, i) {
+                            if (d.key == 0) {
+                                d.Age = +d.key;
+                                d.Deaths = +d.values;
+                                d.Percent = d.Deaths / totalDeathCount;
+                                d.CensusPct = .28;
+                                d.AgeGroup = '0-10'
                             }
-                                ;
-                            });
-
-                    });
-                });
-
-                // Donut chart action on Scatter
-                d3.csv('deaths_age_sex.csv', function(deathsByAge)
-                {
-
-                    var deathsByAgeData = d3.nest()
-                        .key(function(d) { return d.age
-                            ;})
-                        .rollup(function(d) {
-                            return d3.sum(d, function(d) { return 1 ; });
-                        }).entries(deathsByAge);
-
-                    var totalDeaths = d3.nest()
-                        .key(function(d) { return 1;})
-                        .rollup(function(d) {
-                            return d3.sum(d, function(g) {return 1; });
-                        }).entries(deathsByAge);
-
-                    var totalDeathCount = totalDeaths[0].values;
-
-                    deathsByAgeData.forEach(function(d,i) {
-                        if (d.key == 0) {
-                            d.Age = +d.key;
-                            d.Deaths = +d.values;
-                            d.Percent = d.Deaths/totalDeathCount;
-                            d.CensusPct = .28;
-                            d.AgeGroup = '0-10'
-                        }
-                        if (d.key == 1) {
-                            d.Age = +d.key;
-                            d.Deaths = +d.values;
-                            d.Percent = d.Deaths/totalDeathCount;
-                            d.CensusPct = .25;
-                            d.AgeGroup = '11-20'}
-                        if (d.key == 2) {
-                            d.Age = +d.key;
-                            d.Deaths = +d.values;
-                            d.Percent = d.Deaths/totalDeathCount;
-                            d.CensusPct = .30;
-                            d.AgeGroup = '21-40';}
-                        if (d.key == 3) {
-                            d.Age = +d.key;
-                            d.Deaths = +d.values;
-                            d.Percent = d.Deaths/totalDeathCount;
-                            d.CensusPct = .13;
-                            d.AgeGroup = '41-60';}
-                        if (d.key == 4) {
-                            d.Age = +d.key;
-                            d.Deaths = +d.values;
-                            d.Percent = d.Deaths/totalDeathCount;
-                            d.CensusPct = .04;
-                            d.AgeGroup = '61-80';}
-                        if (d.key == 5) {
-                            d.Age = +d.key;
-                            d.Deaths = +d.values;
-                            d.Percent = d.Deaths/totalDeathCount;
-                            d.CensusPct = .01;
-                            d.AgeGroup = '> 80';}
-                    });
-
-
-                    var xScale = d3.scale.linear();
-                    var yScale = d3.scale.linear();
-
-                    var xScaleMax= d3.max(d3.values(deathsByAgeData), function(d) {return d.CensusPct;});
-                    var yScaleMax= d3.max(d3.values(deathsByAgeData), function(d) {return d.Percent;});
-
-
-                    xScale.domain([0, xScaleMax + .1]).range([0, ScatterWidth-margin.left]);
-                    yScale.domain([0, yScaleMax + .1]).range([ScatterHeight-margin.top, margin.bottom]);
-
-                    svgScatterPlot.selectAll("circle")
-                        .data(deathsByAgeData)
-                        //.enter()
-                        //.append("circle")
-                        .attr("cx", function(d,i) {
-                            return xScale(d.CensusPct)+margin.left+25
-                                ;
-                        })
-                        .attr("cy", function(d,i) {
-                            return yScale(d.Percent)-margin.bottom+17
-                                ;
-                        })
-                        .attr("r", 7)
-                        .attr("fill", function(d) {
-                            if (d.key == 0 ) { return "#542788" }
-                            if (d.key == 1 ) { return "#998ec3" }
-                            if (d.key == 2 ) { return "#d8daeb" }
-                            if (d.key == 3 ) { return "#fee0b6" }
-                            if (d.key == 4 ) { return "#f1a340" }
-                            if (d.key == 5 ) { return "#b35806" } }
-                        );
-
-                    svgScatterPlot.selectAll("text")  // <-- Note "text", not "circle" or "rect"
-                        .data(deathsByAgeData)
-                        //.enter()
-                        //.append("text")     // <-- Same here!
-                        .attr("x", function(d) {
-                            return xScale(d.CensusPct)+margin.left+25+10
-                                ;
-                        })
-                        .attr("y", function(d) {
-                            return yScale(d.Percent)-margin.bottom+17
-                                ;
-                        })
-                        .attr("font-family", "sans-serif")
-                        .attr("font-size", "10px")
-                        .attr("fill", "black")
-                        .text(function(d) {
-                            return d.AgeGroup;
+                            if (d.key == 1) {
+                                d.Age = +d.key;
+                                d.Deaths = +d.values;
+                                d.Percent = d.Deaths / totalDeathCount;
+                                d.CensusPct = .25;
+                                d.AgeGroup = '11-20'
+                            }
+                            if (d.key == 2) {
+                                d.Age = +d.key;
+                                d.Deaths = +d.values;
+                                d.Percent = d.Deaths / totalDeathCount;
+                                d.CensusPct = .30;
+                                d.AgeGroup = '21-40';
+                            }
+                            if (d.key == 3) {
+                                d.Age = +d.key;
+                                d.Deaths = +d.values;
+                                d.Percent = d.Deaths / totalDeathCount;
+                                d.CensusPct = .13;
+                                d.AgeGroup = '41-60';
+                            }
+                            if (d.key == 4) {
+                                d.Age = +d.key;
+                                d.Deaths = +d.values;
+                                d.Percent = d.Deaths / totalDeathCount;
+                                d.CensusPct = .04;
+                                d.AgeGroup = '61-80';
+                            }
+                            if (d.key == 5) {
+                                d.Age = +d.key;
+                                d.Deaths = +d.values;
+                                d.Percent = d.Deaths / totalDeathCount;
+                                d.CensusPct = .01;
+                                d.AgeGroup = '> 80';
+                            }
                         });
 
-                    var g = d3.select('svgScatterPlot').select('g');
+
+                        var xScale = d3.scale.linear();
+                        var yScale = d3.scale.linear();
+
+                        var xScaleMax = d3.max(d3.values(deathsByAgeData), function (d) {
+                            return d.CensusPct;
+                        });
+                        var yScaleMax = d3.max(d3.values(deathsByAgeData), function (d) {
+                            return d.Percent;
+                        });
 
 
+                        xScale.domain([0, xScaleMax + .1]).range([0, ScatterWidth - margin.left]);
+                        yScale.domain([0, yScaleMax + .1]).range([ScatterHeight - margin.top, margin.bottom]);
 
-                    var xAxis = d3.svg.axis()
-                        .scale(xScale)
-                        .orient("bottom")
-                        .tickFormat(formatPercent);
+                        svgScatterPlot.selectAll("circle")
+                            .data(deathsByAgeData)
+                            //.enter()
+                            //.append("circle")
+                            .attr("cx", function (d, i) {
+                                return xScale(d.CensusPct) + margin.left + 25
+                                    ;
+                            })
+                            .attr("cy", function (d, i) {
+                                return yScale(d.Percent) - margin.bottom + 17
+                                    ;
+                            })
+                            .attr("r", 7)
+                            .attr("fill", function (d) {
+                                    if (d.key == 0) {
+                                        return "#542788"
+                                    }
+                                    if (d.key == 1) {
+                                        return "#998ec3"
+                                    }
+                                    if (d.key == 2) {
+                                        return "#d8daeb"
+                                    }
+                                    if (d.key == 3) {
+                                        return "#fee0b6"
+                                    }
+                                    if (d.key == 4) {
+                                        return "#f1a340"
+                                    }
+                                    if (d.key == 5) {
+                                        return "#b35806"
+                                    }
+                                }
+                            );
 
-                    var yAxis = d3.svg.axis()
-                        .scale(yScale)
-                        .orient("left")
-                        .ticks(10)
-                        .tickFormat(formatPercent);
+                        svgScatterPlot.selectAll("text")  // <-- Note "text", not "circle" or "rect"
+                            .data(deathsByAgeData)
+                            //.enter()
+                            //.append("text")     // <-- Same here!
+                            .attr("x", function (d) {
+                                return xScale(d.CensusPct) + margin.left + 25 + 10
+                                    ;
+                            })
+                            .attr("y", function (d) {
+                                return yScale(d.Percent) - margin.bottom + 17
+                                    ;
+                            })
+                            .attr("font-family", "sans-serif")
+                            .attr("font-size", "10px")
+                            .attr("fill", "black")
+                            .text(function (d) {
+                                return d.AgeGroup;
+                            });
+
+                        var g = d3.select('svgScatterPlot').select('g');
 
 
-                    svgScatterPlot.append('g')
-                        .attr('class', 'axis')
-                        .attr("transform", "translate(" + (margin.left+25) +", -15  )")
-                        .call(yAxis)
-                        //.append("text")
-                        .attr("class", "label")
-                        .attr("transform", "rotate(-90)")
-                        .attr("y", -30)
-                        .attr("x", -100)
-                        .style("text-anchor", "end")
-                        .style("font-size", "10px")
-                        .text("% of Total Cholera Deaths");
+                        var xAxis = d3.svg.axis()
+                            .scale(xScale)
+                            .orient("bottom")
+                            .tickFormat(formatPercent);
+
+                        var yAxis = d3.svg.axis()
+                            .scale(yScale)
+                            .orient("left")
+                            .ticks(10)
+                            .tickFormat(formatPercent);
 
 
+                        svgScatterPlot.append('g')
+                            .attr('class', 'axis')
+                            .attr("transform", "translate(" + (margin.left + 25) + ", -15  )")
+                            .call(yAxis)
+                            //.append("text")
+                            .attr("class", "label")
+                            .attr("transform", "rotate(-90)")
+                            .attr("y", -30)
+                            .attr("x", -100)
+                            .style("text-anchor", "end")
+                            .style("font-size", "10px")
+                            .text("% of Total Cholera Deaths");
 
-                });
 
+                    });
+                }
             });
 
         var totalDeaths = d3.nest()
@@ -1875,138 +1993,190 @@
                 if (d.key == 5 ) { return "#b35806" } }
             )
             .on("mouseover", function(d,i) {
-                d3.select(this)
-                    .attr("r", "12");
-                var AgeGroup = d.key;
-                d3.csv("deaths_age_sex.csv", function(error, csv_data) {
+                if
+                (d3.select('input[name="mode"]:checked').property("id") != "Cluster") {
+                    d3.select(this)
+                        .attr("r", "12");
+                    var AgeGroup = d.key;
+                    d3.csv("deaths_age_sex.csv", function (error, csv_data) {
 
-                    csv_data.forEach(function(d,i) {
-                        if (d.age == AgeGroup) {
-                            d.x = +d.x;
-                            d.y = +d.y;
-                            d.age = +d.age;
-                            d.gender = +d.gender;
-                            d.deathCount = 1;}
-                    });
-
-
-                    var color = d3.scale.ordinal()
-                        .range(["#c57a1a","#415ec5"]);
-                    var arc = d3.svg.arc()
-                        .outerRadius(radius - (10/donutScale))
-                        .innerRadius(radius - (70/donutScale));
-                    var pie = d3.layout.pie()
-                        .sort(null)
-                        .value(function(d) { return d.values; });
-
-
-                    var dataDonut = d3.nest()
-                        .key(function(d) { return d.gender;})
-                        .rollup(function(d) {
-                            return d3.sum(d, function(d) {return d.deathCount; });
-                        }).entries(csv_data);
-
-                    svgDonut.selectAll("g")
-                        .data(pie(dataDonut))
-                        //.enter().append("g")
-                        .attr("class", "arc");
-
-                    svgDonut.selectAll("g")
-                        .select("path")
-                        .attr("d", arc)
-                        .style("fill", function(d) { return color(d.data.key); });
-                    svgDonut.selectAll("g")
-                        .select("text")
-                        .attr("class", "arc")
-                        .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
-                        .attr("dy", ".35em")
-                        .attr("dx", "-.6em")
-                        .text(function(d) {if (d.data.key == "0") { return d.data.values + ' females' }
-                        else { return  d.data.values + ' males' }
-                            ;
+                        csv_data.forEach(function (d, i) {
+                            if (d.age == AgeGroup) {
+                                d.x = +d.x;
+                                d.y = +d.y;
+                                d.age = +d.age;
+                                d.gender = +d.gender;
+                                d.deathCount = 1;
+                            }
                         });
 
 
-                })
+                        var color = d3.scale.ordinal()
+                            .range(["#c57a1a", "#415ec5"]);
+                        var arc = d3.svg.arc()
+                            .outerRadius(radius - (10 / donutScale))
+                            .innerRadius(radius - (70 / donutScale));
+                        var pie = d3.layout.pie()
+                            .sort(null)
+                            .value(function (d) {
+                                return d.values;
+                            });
 
 
-                d3.json("streets.json", function(streetMap){
-                    var yScale= d3.max(d3.values(streetMap), function(d) {return d[0].y*mapScale,d[1].y*mapScale;});
-                    var xMargin = d3.min(d3.values(streetMap), function(d) {return d[0].x*mapScale,d[1].x*mapScale;});
-                    //Death Locations
-                    d3.csv("deaths_age_sex.csv", function(deathLocations){
-
-                        //console.log(deathLocations)
-                        //Create circles
-                        //svgContainer.selectAll("circle").remove()
-                        svgContainer.selectAll("circle")
-                            .data(deathLocations)
-                            //.enter()
-                            //.append("circle")
-                            .attr("cx", function(d,i) {
-                                if (d.age == AgeGroup) { return mapScale*(d.x)-xMargin}
-                                else { return null}
-                                ;
+                        var dataDonut = d3.nest()
+                            .key(function (d) {
+                                return d.gender;
                             })
-                            .attr("cy", function(d,i) {
-                                if (d.age == AgeGroup) { return yScale-mapScale*(d.y)+margin.top}
-                                else { return null}
-                                ;})
-                            .attr("r", 1.5)
-                            .attr("fill", function(d) { if (d3.select('input[name="mode"]:checked').property("id") == 'Age')
-                            {if (d.age == 0 ) { return "#542788" }
-                                if (d.age == 1 ) { return "#998ec3" }
-                                if (d.age == 2 ) { return "#d8daeb" }
-                                if (d.age == 3 ) { return "#fee0b6" }
-                                if (d.age == 4 ) { return "#f1a340" }
-                                if (d.age == 5 ) { return "#b35806" }
-                                else { return "#c57a1a" }}
-                            else
-                            {
-                                if (d.gender == 1 ) { return "#415ec5" }
-                                else { return "#c57a1a" }
-                                ;
-                            }
+                            .rollup(function (d) {
+                                return d3.sum(d, function (d) {
+                                    return d.deathCount;
+                                });
+                            }).entries(csv_data);
+
+                        svgDonut.selectAll("g")
+                            .data(pie(dataDonut))
+                            //.enter().append("g")
+                            .attr("class", "arc");
+
+                        svgDonut.selectAll("g")
+                            .select("path")
+                            .attr("d", arc)
+                            .style("fill", function (d) {
+                                return color(d.data.key);
+                            });
+                        svgDonut.selectAll("g")
+                            .select("text")
+                            .attr("class", "arc")
+                            .attr("transform", function (d) {
+                                return "translate(" + arc.centroid(d) + ")";
+                            })
+                            .attr("dy", ".35em")
+                            .attr("dx", "-.6em")
+                            .text(function (d) {
+                                if (d.data.key == "0") {
+                                    return d.data.values + ' females'
+                                } else {
+                                    return d.data.values + ' males'
+                                }
                                 ;
                             });
 
 
+                    })
+
+
+                    d3.json("streets.json", function (streetMap) {
+                        var yScale = d3.max(d3.values(streetMap), function (d) {
+                            return d[0].y * mapScale, d[1].y * mapScale;
+                        });
+                        var xMargin = d3.min(d3.values(streetMap), function (d) {
+                            return d[0].x * mapScale, d[1].x * mapScale;
+                        });
+                        //Death Locations
+                        d3.csv("deaths_age_sex.csv", function (deathLocations) {
+
+                            //console.log(deathLocations)
+                            //Create circles
+                            //svgContainer.selectAll("circle").remove()
+                            svgContainer.selectAll("circle")
+                                .data(deathLocations)
+                                //.enter()
+                                //.append("circle")
+                                .attr("cx", function (d, i) {
+                                    if (d.age == AgeGroup) {
+                                        return mapScale * (d.x) - xMargin
+                                    } else {
+                                        return null
+                                    }
+                                    ;
+                                })
+                                .attr("cy", function (d, i) {
+                                    if (d.age == AgeGroup) {
+                                        return yScale - mapScale * (d.y) + margin.top
+                                    } else {
+                                        return null
+                                    }
+                                    ;
+                                })
+                                .attr("r", 1.5)
+                                .attr("fill", function (d) {
+                                    if (d3.select('input[name="mode"]:checked').property("id") == 'Age') {
+                                        if (d.age == 0) {
+                                            return "#542788"
+                                        }
+                                        if (d.age == 1) {
+                                            return "#998ec3"
+                                        }
+                                        if (d.age == 2) {
+                                            return "#d8daeb"
+                                        }
+                                        if (d.age == 3) {
+                                            return "#fee0b6"
+                                        }
+                                        if (d.age == 4) {
+                                            return "#f1a340"
+                                        }
+                                        if (d.age == 5) {
+                                            return "#b35806"
+                                        } else {
+                                            return "#c57a1a"
+                                        }
+                                    } else {
+                                        if (d.gender == 1) {
+                                            return "#415ec5"
+                                        } else {
+                                            return "#c57a1a"
+                                        }
+                                        ;
+                                    }
+                                    ;
+                                });
+
+
+                        });
                     });
-                });
 
-
+                }
 
             })
-            .on("mouseout", function(d,i) {
+            .on("mouseout", function(d,i) {if
+            (d3.select('input[name="mode"]:checked').property("id") != "Cluster") {
                 d3.select(this)
                     .attr("r", "7");
                 var AgeGroup = d.key;
-                d3.csv("deaths_age_sex.csv", function(error, csv_data) {
+                d3.csv("deaths_age_sex.csv", function (error, csv_data) {
 
-                    csv_data.forEach(function(d,i) {
+                    csv_data.forEach(function (d, i) {
                         if (1 == 1) {
                             d.x = +d.x;
                             d.y = +d.y;
                             d.age = +d.age;
                             d.gender = +d.gender;
-                            d.deathCount = 1;}
+                            d.deathCount = 1;
+                        }
                     });
 
 
                     var color = d3.scale.ordinal()
-                        .range(["#c57a1a","#415ec5"]);
+                        .range(["#c57a1a", "#415ec5"]);
                     var arc = d3.svg.arc()
-                        .outerRadius(radius - (10/donutScale))
-                        .innerRadius(radius - (70/donutScale));
+                        .outerRadius(radius - (10 / donutScale))
+                        .innerRadius(radius - (70 / donutScale));
                     var pie = d3.layout.pie()
                         .sort(null)
-                        .value(function(d) { return d.values; });
+                        .value(function (d) {
+                            return d.values;
+                        });
 
 
                     var dataDonut = d3.nest()
-                        .key(function(d) { return d.gender;})
-                        .rollup(function(d) {
-                            return d3.sum(d, function(d) {return d.deathCount; });
+                        .key(function (d) {
+                            return d.gender;
+                        })
+                        .rollup(function (d) {
+                            return d3.sum(d, function (d) {
+                                return d.deathCount;
+                            });
                         }).entries(csv_data);
 
                     svgDonut.selectAll("g")
@@ -2017,15 +2187,23 @@
                     svgDonut.selectAll("g")
                         .select("path")
                         .attr("d", arc)
-                        .style("fill", function(d) { return color(d.data.key); });
+                        .style("fill", function (d) {
+                            return color(d.data.key);
+                        });
                     svgDonut.selectAll("g")
                         .select("text")
                         .attr("class", "arc")
-                        .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
+                        .attr("transform", function (d) {
+                            return "translate(" + arc.centroid(d) + ")";
+                        })
                         .attr("dy", ".35em")
                         .attr("dx", "-.6em")
-                        .text(function(d) {if (d.data.key == "0") { return d.data.values + ' females' }
-                        else { return  d.data.values + ' males' }
+                        .text(function (d) {
+                            if (d.data.key == "0") {
+                                return d.data.values + ' females'
+                            } else {
+                                return d.data.values + ' males'
+                            }
                             ;
                         });
 
@@ -2033,40 +2211,67 @@
                 })
 
 
-                d3.json("streets.json", function(streetMap){
-                    var yScale= d3.max(d3.values(streetMap), function(d) {return d[0].y*mapScale,d[1].y*mapScale;});
-                    var xMargin = d3.min(d3.values(streetMap), function(d) {return d[0].x*mapScale,d[1].x*mapScale;});
+                d3.json("streets.json", function (streetMap) {
+                    var yScale = d3.max(d3.values(streetMap), function (d) {
+                        return d[0].y * mapScale, d[1].y * mapScale;
+                    });
+                    var xMargin = d3.min(d3.values(streetMap), function (d) {
+                        return d[0].x * mapScale, d[1].x * mapScale;
+                    });
                     //Death Locations
-                    d3.csv("deaths_age_sex.csv", function(deathLocations){
+                    d3.csv("deaths_age_sex.csv", function (deathLocations) {
 
                         //console.log(deathLocations)
                         //Create circles
                         svgContainer.selectAll("circle")
                             .data(deathLocations)
-                            .attr("cx", function(d,i) {
-                                if (1 == 1) { return mapScale*(d.x)-xMargin}
-                                else { return null}
+                            .attr("cx", function (d, i) {
+                                if (1 == 1) {
+                                    return mapScale * (d.x) - xMargin
+                                } else {
+                                    return null
+                                }
                                 ;
                             })
-                            .attr("cy", function(d,i) {
-                                if (1 == 1) { return yScale-mapScale*(d.y)+margin.top}
-                                else { return null}
-                                ;})
-                            .attr("r", 1.5)
-                            .attr("fill", function(d) { if (d3.select('input[name="mode"]:checked').property("id") == 'Age')
-                            {if (d.age == 0 ) { return "#542788" }
-                                if (d.age == 1 ) { return "#998ec3" }
-                                if (d.age == 2 ) { return "#d8daeb" }
-                                if (d.age == 3 ) { return "#fee0b6" }
-                                if (d.age == 4 ) { return "#f1a340" }
-                                if (d.age == 5 ) { return "#b35806" }
-                                else { return "#c57a1a" }}
-                            else
-                            {
-                                if (d.gender == 1 ) { return "#415ec5" }
-                                else { return "#c57a1a" }
+                            .attr("cy", function (d, i) {
+                                if (1 == 1) {
+                                    return yScale - mapScale * (d.y) + margin.top
+                                } else {
+                                    return null
+                                }
                                 ;
-                            }
+                            })
+                            .attr("r", 1.5)
+                            .attr("fill", function (d) {
+                                if (d3.select('input[name="mode"]:checked').property("id") == 'Age') {
+                                    if (d.age == 0) {
+                                        return "#542788"
+                                    }
+                                    if (d.age == 1) {
+                                        return "#998ec3"
+                                    }
+                                    if (d.age == 2) {
+                                        return "#d8daeb"
+                                    }
+                                    if (d.age == 3) {
+                                        return "#fee0b6"
+                                    }
+                                    if (d.age == 4) {
+                                        return "#f1a340"
+                                    }
+                                    if (d.age == 5) {
+                                        return "#b35806"
+                                    } else {
+                                        return "#c57a1a"
+                                    }
+                                } else {
+                                    if (d.gender == 1) {
+                                        return "#415ec5"
+                                    } else {
+                                        return "#c57a1a"
+                                    }
+                                    ;
+                                }
                                 ;
                             });
 
@@ -2074,7 +2279,7 @@
                 });
 
 
-
+            }
             });
 
         svgScatterPlot.selectAll("text")  // <-- Note "text", not "circle" or "rect"
